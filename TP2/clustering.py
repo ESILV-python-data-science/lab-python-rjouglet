@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Cluster images based on visual similarity
+TP2 - Remi JOUGLET
 
-C. Kermorvant - 2017
 """
 
 import argparse
-import glob
 import logging
 import os
 import shutil
-import time
+import multiprocessing
 import sys
 
+from joblib import Parallel, delayed
 from tqdm import tqdm
 from PIL import Image, ImageFilter
 from sklearn.cluster import KMeans
@@ -84,11 +83,18 @@ def copy_to_dir(images, clusters, cluster_dir):
 def get_jpg_files():
     """ Returns a list of jpeg files in the input directory """
     files = []
-    for file in os.listdir("./images/"):
+    print(os.path.dirname(os.path.realpath(__file__)) + "/" + args.images_dir)
+    for file in os.listdir(os.path.dirname(os.path.realpath(__file__)) + "/" + args.images_dir):
         if ".jpg" not in file:
             continue
-        files.append(file)
+        files.append(os.path.dirname(os.path.realpath(__file__)) + "/" + args.images_dir + file)
     return files
+
+
+def image_loader(image):
+    """" Extract the features from the image"""
+    my_image = Image.open(image)
+    return extract_features(my_image)
 
 
 if __name__ == "__main__":
@@ -96,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument('--images-dir', required=True)
     parser.add_argument('--move-images')
     args = parser.parse_args()
-
+    CLUSTER_DIR = ""
     if args.move_images:
         CLUSTER_DIR = args.move_images
         # Clean up
@@ -110,26 +116,32 @@ if __name__ == "__main__":
     data = []
     if args.images_dir:
         SOURCE_IMG_DIR = args.images_dir
-
-        # TODO : write the code to list all the images in the input directory
-        # and store their path in images_path_list
-        image_path_list.insert()
+        images_path_list = get_jpg_files()
 
     if not images_path_list:
         logger.warning("Did not found any jpg image in %s" % args.images_dir)
         sys.exit(0)
 
-    # TODO : Extract the feature vector on all the pages found and store the feature
-    # vectors in  data
+    # Multi-core feature extraction.
+    data = Parallel(n_jobs=multiprocessing.cpu_count())(
+        delayed(image_loader)(image) for image in tqdm(images_path_list))
 
-    # cluster the feature vectors
     if not data:
         logger.error("Could not extract any feature vector")
         sys.exit(1)
+
 
     # convert to np array (default format for scikit-learn)
     X = np.array(data)
     logger.info("Running clustering")
 
-    # TODO : run the K-Means clusering and call copy_to_dir to copy the image
+    # TODO : run the K-Means clustering and call copy_to_dir to copy the image
     # in the directory corresponding to its cluster
+
+    kmeans_model = KMeans(n_clusters=11, random_state=1).fit(X)
+
+    if not args.images_dir:
+        logger.info(msg="Cluster image directory was not specified, exiting")
+        sys.exit(1)
+
+    copy_to_dir(images_path_list, kmeans_model.labels_, CLUSTER_DIR)
