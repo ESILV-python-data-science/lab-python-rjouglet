@@ -267,6 +267,7 @@ if __name__ == "__main__":
             display_learning_curve("Nearest Neighbors Learning curves",samples_train,train_accuracy_knn,test_accuracy_knn)
             display_learning_curve("Logistic Regression Learning curves",samples_train,train_accuracy_log,test_accuracy_log)
             plt.show()
+            
         else:
             # Do Training and testing
             print('Knn :')
