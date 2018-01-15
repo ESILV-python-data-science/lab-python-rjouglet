@@ -1,6 +1,6 @@
 # Classification des pages de livres d’heures
 
-## Question : Prenez soin de bien définir les différents ensembles (train/validation/test). L’objectif est de pouvoir estimer la performance du classifieur (taux de classification correcte) sur des nouveaux manuscrits. Donnez les résultats de toutes vos expériences, même les résutats négatifs. Faites une analyse votre résultat final, telle qu’elle pourrait être transmise à votre client.
+_Question : Prenez soin de bien définir les différents ensembles (train/validation/test). L’objectif est de pouvoir estimer la performance du classifieur (taux de classification correcte) sur des nouveaux manuscrits. Donnez les résultats de toutes vos expériences, même les résutats négatifs. Faites une analyse votre résultat final, telle qu’elle pourrait être transmise à votre client._
 
 
 
